@@ -1,9 +1,9 @@
 ::
 : Name: Bloatkiller
 : Description: Disables superfluous Windows services
-: Author: Lukas Lynch <madi@mxdi.xyz>
+: Authors: Lukas Lynch <madi@mxdi.xyz>, T. Fierro <null>
 : License: MIT
-: Version: 1.1
+: Version: 1.2
 :
 : Notes:
 :   sc is the program for configuring services.
@@ -15,6 +15,12 @@
 
 @echo off
 setlocal enableDelayedExpansion
+title Bloatkiller
+
+echo(
+echo Now disabling unnecessary background services.
+echo ----------------------------------------------
+echo(
 
 ::
 : Define array of services to disable.
@@ -26,9 +32,8 @@ set services[1]=DiagTrack
 set services[2]=GUBootService
 set services[3]=GUMemfilesService
 set services[4]=GUPMService
-set services[5]=PcaSvc
-set services[6]=SysMain
-set services[7]=NULL
+set services[5]=SysMain
+set services[6]=NULL
 
 :: Check for admin privileges
 net session >nul 2>&1
@@ -62,13 +67,23 @@ if %service% NEQ NULL (
 	goto loop
 )
 
-:: This is to spawn msconfig, for checking for malicious services (allows us to filter out Microsoft services)
+:: This is to spawn msconfig, for checking for malicious services (allows us to filter out Microsoft services) -LL
 echo | set /p="Launch msconfig? "	&:: "echo set /p="..." removes trailing newline
 choice					&:: The default options are Y/N. Y = 1, N = 2
 if %errorLevel% == 1 (
 	msconfig
 )
 
+echo(
+:: This is to spawn Services, for checking all services -TF
+echo | set /p="Launch Services? "	&:: "echo set /p="..." removes trailing newline
+choice					&:: The default options are Y/N. Y = 1, N = 2
+if %errorLevel% == 1 (
+	services.msc
+)
+
 :end
-echo Press any key to continue.
-pause >nul
+echo(
+:: Alternatively you could use "cmd /K" instead of "pause" as the final command, it returns you to the terminal to be able to perform more stuff rather then just closing the window -TF
+::cmd /K
+pause
