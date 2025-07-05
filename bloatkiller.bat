@@ -3,23 +3,28 @@
 : Description: Disables superfluous Windows services
 : Authors: Lukas Lynch <madi@mxdi.xyz>, T. Fierro <null>
 : License: MIT
-: Version: 1.2
+: Version: 1.3
 :
 : Notes:
-:   sc is the program for configuring services.
+:   "echo | set /p="..." removes trailing newline from 'echo' command
+:
+:   'sc' is the command for configuring services.
 :   Relevant return codes (a.k.a. errorLevel):
 :   - 0: No issues
 :   - 1060: Service not found/valid
 :   - 1062: Service not running/already stopped (for stop operation)
+:
+:   The default options for the 'choice' command are Y/N.
+:   Relevant return codes (a.k.a. errorLevel):
+:   - 1: Y
+:   - 2: N
 ::
-
 @echo off
 setlocal enableDelayedExpansion
 title Bloatkiller
 
-echo(
 echo Now disabling unnecessary background services.
-echo ----------------------------------------------
+echo ==============================================
 echo(
 
 ::
@@ -46,44 +51,53 @@ set /a index=0
 :loop
 set service=!services[%index%]!
 if %service% NEQ NULL (
-	echo Stopping %service%
+	echo | set/p="Stopping %service% - "
 	sc stop %service% >nul 2>&1
-	if !errorLevel! NEQ 0 if !errorLevel! NEQ 1062 (
-		if !errorLevel! == 1060 (
-			echo 	Service not found
-		) else (echo sc failed to stop %service%. [Error: !errorLevel!] 1>&2)
-	)
-
-	echo Disabling %service%
-	sc config %service% start= disabled >nul 2>&1
 	if !errorLevel! NEQ 0 (
-		if !errorLevel! == 1060 (
-			echo 	Service not found
-		) else (echo sc failed to disable %service%. [Error: !errorLevel!] 1>&2)
-	)
+		if !errorLevel! == 1062 (
+			echo [SUCCESS] - Service already stopped
+		) else (
+			if !errorLevel! == 1060 (
+				echo [NULL] - Service not found
+			) else (echo [ERROR] - sc failed to stop %service%. [Error: !errorLevel!] 1>&2)
+		)
+	) else (echo [SUCCESS])
+
+	echo | set/p="Disabling %service% - "
+	sc qc %service% | findstr DISABLED >nul 	&:: Check if service is already diasabled
+	if !errorLevel! NEQ 0 (
+		sc config %service% start= disabled >nul 2>&1
+		if !errorLevel! NEQ 0 (
+			if !errorLevel! == 1060 (
+				echo [NULL] - Service not found
+			) else (echo [ERROR] - sc failed to disable %service%. [Error: !errorLevel!] 1>&2)
+		) else (echo [SUCCESS])
+	) else (echo [SUCCESS] - Service already disabled)
 	
 	echo.
 	set /a index=%index%+1
 	goto loop
 )
 
-:: This is to spawn msconfig, for checking for malicious services (allows us to filter out Microsoft services) -LL
-echo | set /p="Launch msconfig? "	&:: "echo set /p="..." removes trailing newline
-choice					&:: The default options are Y/N. Y = 1, N = 2
+:: This is to spawn msconfig, for checking for malicious services (allows us to filter out Microsoft services)
+echo | set /p="Launch msconfig? "
+choice
 if %errorLevel% == 1 (
 	msconfig
 )
 
-echo(
 :: This is to spawn Services, for checking all services -TF
-echo | set /p="Launch Services? "	&:: "echo set /p="..." removes trailing newline
-choice					&:: The default options are Y/N. Y = 1, N = 2
+echo(
+echo | set /p="Launch Services? "
+choice
 if %errorLevel% == 1 (
 	services.msc
 )
 
 :end
 echo(
-:: Alternatively you could use "cmd /K" instead of "pause" as the final command, it returns you to the terminal to be able to perform more stuff rather then just closing the window -TF
-::cmd /K
-pause
+echo | set /p="Exit console? "
+choice
+if %errorLevel% == 2 (
+	cmd /K
+)
