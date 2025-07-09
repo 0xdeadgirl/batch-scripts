@@ -3,7 +3,7 @@
 : Description: Disables superfluous Windows services
 : Authors: Lukas Lynch <madi@mxdi.xyz>, T. Fierro <null>
 : License: MIT
-: Version: 1.3
+: Version: 1.4
 :
 : Notes:
 :   "echo | set /p="..." removes trailing newline from 'echo' command
@@ -18,13 +18,15 @@
 :   Relevant return codes (a.k.a. errorLevel):
 :   - 1: Y
 :   - 2: N
+:
+:   "[{number}m" are ANSI escape sequences; for color.
 ::
 @echo off
 setlocal enableDelayedExpansion
 title Bloatkiller
 
-echo Now disabling unnecessary background services.
-echo ==============================================
+echo [1mNow disabling unnecessary background services.
+echo ==============================================[0m
 echo(
 
 ::
@@ -55,13 +57,13 @@ if %service% NEQ NULL (
 	sc stop %service% >nul 2>&1
 	if !errorLevel! NEQ 0 (
 		if !errorLevel! == 1062 (
-			echo [SUCCESS] - Service already stopped
+			echo [[92mSUCCESS[0m] - Service already stopped
 		) else (
 			if !errorLevel! == 1060 (
-				echo [NULL] - Service not found
-			) else (echo [ERROR] - sc failed to stop %service%. [Error: !errorLevel!] 1>&2)
+				echo [NULL] - Service not present
+			) else (echo [[91mERROR[0m] - sc failed to stop %service%. [Error: !errorLevel!] 1>&2)
 		)
-	) else (echo [SUCCESS])
+	) else (echo [[92mSUCCESS[0m])
 
 	echo | set/p="Disabling %service% - "
 	sc qc %service% | findstr DISABLED >nul 	&:: Check if service is already diasabled
@@ -70,9 +72,9 @@ if %service% NEQ NULL (
 		if !errorLevel! NEQ 0 (
 			if !errorLevel! == 1060 (
 				echo [NULL] - Service not found
-			) else (echo [ERROR] - sc failed to disable %service%. [Error: !errorLevel!] 1>&2)
-		) else (echo [SUCCESS])
-	) else (echo [SUCCESS] - Service already disabled)
+			) else (echo [[91mERROR[0m] - sc failed to disable %service%. [Error: !errorLevel!] 1>&2)
+		) else (echo [[92mSUCCESS[0m])
+	) else (echo [[92mSUCCESS[0m] - Service already disabled)
 	
 	echo.
 	set /a index=%index%+1
@@ -96,8 +98,8 @@ if %errorLevel% == 1 (
 
 :end
 echo(
-echo | set /p="Exit console? "
+echo | set /p="Continue console session? "
 choice
-if %errorLevel% == 2 (
+if %errorLevel% == 1 (
 	cmd /K
 )
