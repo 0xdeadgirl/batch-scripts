@@ -63,7 +63,7 @@ if %service% NEQ NULL (
 				echo [NULL] - Service not present
 			) else (echo [[91mERROR[0m] - sc failed to stop %service%. [Error: !errorLevel!] 1>&2)
 		)
-	) else (echo [[92mSUCCESS[0m])
+	) else (echo [[92mSUCCESS[0m])
 
 	echo | set/p="Disabling %service% - "
 	sc qc %service% | findstr DISABLED >nul 	&:: Check if service is already diasabled
