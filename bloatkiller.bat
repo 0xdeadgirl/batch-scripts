@@ -3,7 +3,7 @@
 : Description: Disables superfluous Windows services
 : Authors: Lukas Lynch <madi@mxdi.xyz>, T. Fierro <null>
 : License: MIT
-: Version: 1.4
+: Version: 1.5
 :
 : Notes:
 :   "echo | set /p="..." removes trailing newline from 'echo' command
@@ -53,6 +53,7 @@ set /a index=0
 :loop
 set service=!services[%index%]!
 if %service% NEQ NULL (
+	:: Stop services
 	echo | set/p="Stopping %service% - "
 	sc stop %service% >nul 2>&1
 	if !errorLevel! NEQ 0 (
@@ -65,13 +66,14 @@ if %service% NEQ NULL (
 		)
 	) else (echo [[92mSUCCESS[0m])
 
+	:: Disable services
 	echo | set/p="Disabling %service% - "
 	sc qc %service% | findstr DISABLED >nul 	&:: Check if service is already diasabled
 	if !errorLevel! NEQ 0 (
 		sc config %service% start= disabled >nul 2>&1
 		if !errorLevel! NEQ 0 (
 			if !errorLevel! == 1060 (
-				echo [NULL] - Service not found
+				echo [NULL] - Service not present
 			) else (echo [[91mERROR[0m] - sc failed to disable %service%. [Error: !errorLevel!] 1>&2)
 		) else (echo [[92mSUCCESS[0m])
 	) else (echo [[92mSUCCESS[0m] - Service already disabled)
@@ -82,24 +84,22 @@ if %service% NEQ NULL (
 )
 
 :: This is to spawn msconfig, for checking for malicious services (allows us to filter out Microsoft services)
-echo | set /p="Launch msconfig? "
-choice
+choice /m "Launch msconfig? "
 if %errorLevel% == 1 (
 	msconfig
 )
 
 :: This is to spawn Services, for checking all services -TF
 echo(
-echo | set /p="Launch Services? "
-choice
+choice /m "Launch Services? "
 if %errorLevel% == 1 (
 	services.msc
 )
 
 :end
 echo(
-echo | set /p="Continue console session? "
-choice
+choice /m "Continue console session? "
 if %errorLevel% == 1 (
+	endlocal
 	cmd /K
 )
