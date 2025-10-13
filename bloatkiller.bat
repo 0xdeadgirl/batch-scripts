@@ -34,13 +34,14 @@ echo(
 : Make sure to adjusted indexes if adding/removing services.
 : NULL should always be last.
 ::
-set services[0]=CCleanerPerformanceOptimizerService
-set services[1]=DiagTrack
-set services[2]=GUBootService
-set services[3]=GUMemfilesService
-set services[4]=GUPMService
-set services[5]=SysMain
-set services[6]=NULL
+set services[0]=CCleaner7
+set services[1]=CCleanerPerformanceOptimizerService
+set services[2]=DiagTrack
+set services[3]=GUBootService
+set services[4]=GUMemfilesService
+set services[5]=GUPMService
+set services[6]=SysMain
+set services[7]=NULL
 
 :: Check for admin privileges
 net session >nul 2>&1
