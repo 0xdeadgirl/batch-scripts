@@ -2,7 +2,7 @@
 : Name: Backseat Driver
 : Description: Uninstalls HID mouse devices
 : License: MIT
-: Version: 1
+: Version: 1.1
 :
 : Notes:
 :   This script uninstalls HID mouse devices, and theoretically leave virtual mice unaffected.
@@ -21,6 +21,7 @@ net session >nul 2>&1
 if %errorLevel% NEQ 0 (
 	echo Failure: Current permissions inadequate; try running as administrator.
 	pause
+	exit
 )
 
 :: Check if there are currently HID mice. 0=devices found; 1=none found
