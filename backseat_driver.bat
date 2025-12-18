@@ -1,20 +1,15 @@
 ::
 : Name: Backseat Driver
-: Description: Uninstalls HID mouse devices
+: Description: Uninstalls PnP mouse devices
 : License: MIT
-: Version: 1.2
+: Version: 1.3
 :
 : Notes:
-:   This script uninstalls HID mouse devices, and theoretically leave virtual mice unaffected.
+:   This script uninstalls PnP mouse devices.
 :
 :   We uninstall the devices, because they can be re-enabled by unplugging them and plugging
 :   them back in, or by restarting the computer. We would need to manually re-enable if we
 :   outright disabled them.
-:
-:   [DISCLAIMER]
-:   THIS SCRIPT IS INTENDED TO STOP REMOTE CLIENTS FROM STUMBLING INTO DANGER WHILE TECHNICIAN(S)
-:   MAY BE INATTENTIVE. IT'S HIGHLY URGED THAT THIS SCRIPT GETS RE-RUN TO UNDO ITS AFFECTS, AND IS
-:   REMOVED WHEN DONE TO AVOID EXPLOITATION BY BAD ACTORS.
 :
 :   '>nul 2>&1' suppresses output
 ::
@@ -29,13 +24,10 @@ if %errorLevel% NEQ 0 (
 	exit
 )
 
-:: Check if there are currently HID mice. 0=devices found; 1=none found
-powershell -Command "Get-PnpDevice -Class Mouse" >NUL 2>&1
-if %errorlevel% == 0 (
-	powershell -Command "Get-PnpDevice -Class Mouse | ForEach-Object { &'pnputil' /remove-device $_.InstanceId }" >nul 2>&1
-) else (
-	pnputil /scan-devices >nul 2>&1
-	echo [DISCLAIMER] MAKE SURE TO REMOVE WHEN DONE!
-	pause
-	exit
-)
+:: Disable mouse
+powershell -Command "Get-PnpDevice -Class Mouse | ForEach-Object { &'pnputil' /remove-device $_.InstanceId }" >nul 2>&1
+
+pause
+
+:: Re-enable mouse
+pnputil /scan-devices >nul 2>&1
