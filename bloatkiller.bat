@@ -3,7 +3,7 @@
 : Description: Disables superfluous Windows services
 : Authors: Lukas Lynch <madi@mxdi.xyz>, T. Fierro <null>
 : License: MIT
-: Version: 1.5
+: Version: 1.6
 :
 : Notes:
 :   "echo | set /p="..." removes trailing newline from 'echo' command
@@ -35,12 +35,13 @@ echo(
 : NULL should always be last.
 ::
 set services[0]=CCleanerPerformanceOptimizerService
-set services[1]=DiagTrack
-set services[2]=GUBootService
-set services[3]=GUMemfilesService
-set services[4]=GUPMService
-set services[5]=SysMain
-set services[6]=NULL
+set services[1]=GUBootService
+set services[2]=GUMemfilesService
+set services[3]=GUPMService
+set services[4]=MacriumService
+set services[5]=DiagTrack
+set services[6]=SysMain
+set services[7]=NULL
 
 :: Check for admin privileges
 net session >nul 2>&1
